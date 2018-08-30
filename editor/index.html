@@ -1,0 +1,397 @@
+﻿<meta content="width=device-width,user-scalable=no"name=viewport>
+<button id=exp>export</button>
+<br>
+<button id=load>load</button>
+
+<canvas width=768 height=1024 id=a></canvas>
+<img src="top-node.png" id=topnode>
+<img src="bottom-node1.png" id=bottomnode>
+<img src="bottom-node7.png" id=placednode>
+<style>
+html, body { height: 100%; overflow: hidden; background: #E3D2B6; }
+* { cursor: crosshair }
+#a { position:fixed;top:0;left:50%;transform:translateX(-50%);background-size:100%;height:100vh }
+img { position: absolute; left: -100vw; }
+</style>
+<script>
+
+  size = prompt("Size? (3 or 4)", 3);
+  I = J = -1;
+  ratio = 1;
+  level = 1;
+  levelwon = 0;
+
+  c = a.getContext("2d");
+  points = [];
+  levels = [
+    
+    // No level 0
+    0,
+    
+    // 1
+    size == 3 ? 
+    
+    [  
+      [[-10,-10],[-10,-10],[-10,-10]],
+      [[-10,-10],[-10,-10],[-10,-10]],
+      [[-10,-10],[-10,-10],[-10,-10]],
+    ]
+    
+    :
+    
+    [  
+      [[-10,-10],[-10,-10],[-10,-10],[-10,-10]],
+      [[-10,-10],[-10,-10],[-10,-10],[-10,-10]],
+      [[-10,-10],[-10,-10],[-10,-10],[-10,-10]],
+      [[-10,-10],[-10,-10],[-10,-10],[-10,-10]],
+    ], 
+  ];
+  
+  var rotate3 = function(matrix){
+    var newMatrix = [[],[],[]];
+    
+    newMatrix[0][0] = matrix[2][0];
+    newMatrix[0][1] = matrix[1][0];
+    newMatrix[0][2] = matrix[0][0];
+    
+    newMatrix[1][0] = matrix[2][1];
+    newMatrix[1][1] = matrix[1][1];
+    newMatrix[1][2] = matrix[0][1];
+    
+    newMatrix[2][0] = matrix[2][2];
+    newMatrix[2][1] = matrix[1][2];
+    newMatrix[2][2] = matrix[0][2];
+    
+    return newMatrix;
+  }
+  
+  var rotate4 = function(matrix){
+    var newMatrix = [[],[],[],[]];
+    
+    newMatrix[0][0] = matrix[3][0];
+    newMatrix[0][1] = matrix[2][0];
+    newMatrix[0][2] = matrix[1][0];
+    newMatrix[0][3] = matrix[0][0];
+    
+    newMatrix[1][0] = matrix[3][1];
+    newMatrix[1][1] = matrix[2][1];
+    newMatrix[1][2] = matrix[1][1];
+    newMatrix[1][3] = matrix[0][1];
+    
+    newMatrix[2][0] = matrix[3][2];
+    newMatrix[2][1] = matrix[2][2];
+    newMatrix[2][2] = matrix[1][2];
+    newMatrix[2][3] = matrix[0][2];
+    
+    newMatrix[3][0] = matrix[3][3];
+    newMatrix[3][1] = matrix[2][3];
+    newMatrix[3][2] = matrix[1][3];
+    newMatrix[3][3] = matrix[0][3];
+    
+    return newMatrix;
+  }
+  
+  var transpose3 = function(matrix){
+    var newMatrix = [[],[],[]];
+    
+    newMatrix[0][0] = matrix[0][0];
+    newMatrix[0][1] = matrix[1][0];
+    newMatrix[0][2] = matrix[2][0];
+    
+    newMatrix[1][0] = matrix[0][1];
+    newMatrix[1][1] = matrix[1][1];
+    newMatrix[1][2] = matrix[2][1];
+    
+    newMatrix[2][0] = matrix[0][2];
+    newMatrix[2][1] = matrix[1][2];
+    newMatrix[2][2] = matrix[2][2];
+    
+    return newMatrix;
+  }
+  
+  var transpose4 = function(matrix){
+    var newMatrix = [[],[],[],[]];
+    
+    newMatrix[0][0] = matrix[0][0];
+    newMatrix[0][1] = matrix[1][0];
+    newMatrix[0][2] = matrix[2][0];
+    newMatrix[0][3] = matrix[3][0];
+    
+    newMatrix[1][0] = matrix[0][1];
+    newMatrix[1][1] = matrix[1][1];
+    newMatrix[1][2] = matrix[2][1];
+    newMatrix[1][3] = matrix[3][1];
+    
+    newMatrix[2][0] = matrix[0][2];
+    newMatrix[2][1] = matrix[1][2];
+    newMatrix[2][2] = matrix[2][2];
+    newMatrix[2][3] = matrix[3][2];
+    
+    newMatrix[3][0] = matrix[0][3];
+    newMatrix[3][1] = matrix[1][3];
+    newMatrix[3][2] = matrix[2][3];
+    newMatrix[3][3] = matrix[3][3];
+    
+    return newMatrix;
+  }
+  
+  onmousedown = function(e) {
+    X = (768 * ratio / 2 - innerWidth / 2 + e.pageX) / ratio;
+    Y = e.pageY /ratio;
+    draw();
+  }
+  
+  ontouchstart = function(e) {
+    X = e.changedTouches[0].pageX * 1024 / innerHeight;
+    Y = e.changedTouches[0].pageY * 1024 / innerHeight;
+    draw();
+  }
+  
+  onmousemove = function(e) {
+    X = (768 * ratio / 2 - innerWidth / 2 + e.pageX) / ratio;
+    Y = e.pageY /ratio;
+    if(X < 4) X = 4;
+    if(Y < 4) Y = 4;
+    if(X > 768 - 4) X = 768 - 4;
+    if(Y > 1024 - 4) Y = 1024 - 4;
+    movepoint();
+  }
+  
+  ontouchmove = function(e) {
+    e.preventDefault();
+    X = e.changedTouches[0].pageX * 1024 / innerHeight;
+    Y = e.changedTouches[0].pageY * 1024 / innerHeight;
+    movepoint();
+  };
+  
+  ondrag = function(e) {
+    e.preventDefault();
+  };
+
+  movepoint = function(z) {
+    if(I > -1 && J > -1){
+      points[I][J][0] = ~~X;
+      points[I][J][1] = ~~Y;
+      draw();
+    }
+  }
+  
+  onmouseup = ontouchend = function(e) {
+    if(!points[I]) return;
+    var dist = 9999;
+    var closest_i = -1;
+    var closest_j = -1;
+    for(i in solution){
+      for(j in solution[i]){
+        var tmp = Math.hypot(points[I][J][0] - solution[i][j][0], points[I][J][1] - solution[i][j][1]);
+        if(tmp < dist){
+          dist = tmp;
+          closest_i = i;
+          closest_j = j;
+        };
+      }
+    }
+    if(dist < 40){
+      points[I][J][0] = ~~solution[closest_i][closest_j][0];
+      points[I][J][1] = ~~solution[closest_i][closest_j][1];
+      draw();
+      //points[I][J][2] = 1;
+    }
+    else {
+      //points[I][J][2] = 0;
+    }
+    draw();
+    
+    for(s in solutions){
+      var won = 1;
+      for(i in solutions[s]){
+        for(j in solutions[s][i]){
+          if(points[i][j][0] != solutions[s][i][j][0] || points[i][j][1] != solutions[s][i][j][1]){
+            won = 0;
+          }
+        }
+      }
+      if(won){
+        levelwon = 1;
+        level = 10;
+        make();
+      }
+    }
+    I = J = -1;
+  }
+  
+  draw = function(z){
+    a.width ^= 0;
+    
+    c.rect(50,80,608,450);
+    c.stroke();
+    
+    
+    for(i in solution){
+      for(j in solution[i]){
+        //c.fillStyle = "#555";
+        //c.fillRect(solution[i][j][0] - 4, solution[i][j][1] - 4, 8, 8);
+        c.drawImage(topnode, solution[i][j][0] - 18, solution[i][j][1] - 18);
+      }
+    }
+    if(size == 3){
+    
+      for(i = 0; i < 3; i++){
+        for(j = 0; j < 3; j++){
+          if(i < 2){
+            c.beginPath();
+              c.lineWidth = 4;
+              c.strokeStyle = "#aaa";
+              c.moveTo(points[i][j][0], points[i][j][1]);
+              c.lineTo(points[i+1][j][0], points[i+1][j][1]);
+              c.stroke();
+            c.closePath();
+          }
+          if(j < 2){
+            c.beginPath();
+              c.lineWidth = 4;
+              c.strokeStyle = "#aaa";
+              c.moveTo(points[i][j][0], points[i][j][1]);
+              c.lineTo(points[i][j+1][0], points[i][j+1][1]);
+              c.stroke();
+            c.closePath();
+          }
+          //c.fillStyle = "#555";
+          //c.fillRect(points[i][j][0] - 4, points[i][j][1] - 4, 8, 8);
+          if(points[i][j][2]){
+            c.drawImage(placednode, points[i][j][0] - 26, points[i][j][1] - 26);
+          }
+          else{
+            c.drawImage(bottomnode, points[i][j][0] - 27, points[i][j][1] - 27);
+          }
+          c.beginPath();
+            c.rect(points[i][j][0] - 30, points[i][j][1] - 30, 60, 60);
+            if(I == -1 && J == -1 && c.isPointInPath(X, Y)){
+              I = i;
+              J = j;
+            }
+          c.closePath();
+        }
+      }
+    }
+    
+    else {
+      for(i = 0; i < 4; i++){
+        for(j = 0; j < 4; j++){
+          if(i < 3){
+            c.beginPath();
+              c.lineWidth = 4;
+              c.strokeStyle = "#aaa";
+              c.moveTo(points[i][j][0], points[i][j][1]);
+              c.lineTo(points[i+1][j][0], points[i+1][j][1]);
+              c.stroke();
+            c.closePath();
+          }
+          if(j < 3){
+            c.beginPath();
+              c.lineWidth = 4;
+              c.strokeStyle = "#aaa";
+              c.moveTo(points[i][j][0], points[i][j][1]);
+              c.lineTo(points[i][j+1][0], points[i][j+1][1]);
+              c.stroke();
+            c.closePath();
+          }
+          //c.fillStyle = "#555";
+          //c.fillRect(points[i][j][0] - 4, points[i][j][1] - 4, 8, 8);
+          c.drawImage(bottomnode, points[i][j][0] - 27, points[i][j][1] - 27);
+          c.beginPath();
+            c.rect(points[i][j][0] - 30, points[i][j][1] - 30, 60, 60);
+            if(I == -1 && J == -1 && c.isPointInPath(X, Y)){
+              I = i;
+              J = j;
+            }
+          c.closePath();
+        }
+      }
+    }
+  }
+  
+  var make = function(){
+  
+    solution = levels[level];
+    solutions = [solution];
+    
+    if(size == 3){
+      solutions[1] = rotate3(solutions[0]);
+      solutions[2] = rotate3(solutions[1]);
+      solutions[3] = rotate3(solutions[2]);
+      solutions[4] = transpose3(solutions[0]);
+      solutions[5] = rotate3(solutions[4]);
+      solutions[6] = rotate3(solutions[5]);
+      solutions[7] = rotate3(solutions[6]);
+    }
+    
+    else {
+      solutions[1] = rotate4(solutions[0]);
+      solutions[2] = rotate4(solutions[1]);
+      solutions[3] = rotate4(solutions[2]);
+      solutions[4] = transpose4(solutions[0]);
+      solutions[5] = rotate4(solutions[4]);
+      solutions[6] = rotate4(solutions[5]);
+      solutions[7] = rotate4(solutions[6]);
+    }
+    
+    X = Y = -1;
+    I = J = -1;
+  
+    if(size == 3){
+      for(i = 0; i < 3; i++){
+        points[i] = [];
+        for(j = 0; j < 3; j++){
+          points[i][j] = [400 + (i - 1.3) * 120, 900 + (j - 2) * 120];
+        }
+      }
+    }
+    
+    else{
+      for(i = 0; i < 4; i++){
+        points[i] = [];
+        for(j = 0; j < 4; j++){
+          points[i][j] = [380 + (i - 1.8) * 80, 800 + (j - 2) * 80];
+        }
+      }
+    }
+    
+    draw();
+  }
+  
+  onload = function(){
+    ratio = innerHeight / 1024;
+    make();
+  }
+  
+  exp.onclick = function(){
+    prompt("Export", JSON.stringify(points));
+  }
+  
+  
+  onkeydown = function(e){
+    offset=[];
+    if(e.keyCode == 37) offset = [-1,0];
+    if(e.keyCode == 38) offset = [0,-1];
+    if(e.keyCode == 39) offset = [1,0];
+    if(e.keyCode == 40) offset = [0,1];
+    
+    for(i = 0; i < 4; i++){
+      for(j = 0; j < 4; j++){
+        if(points[i] && points[i][j]){
+          points[i][j][0]+= offset[0];
+          points[i][j][1]+= offset[1];
+        }
+      }
+    }
+    
+    draw();
+  }
+  
+  load.onclick = function(e){
+    var z = prompt();
+    points = JSON.parse(z);
+    draw();
+  }
+</script>

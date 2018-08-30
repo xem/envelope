@@ -1,0 +1,24 @@
+﻿<input type=color id=c1 value="#ffffff">
+<input type=color id=c2 value="#ff0000">
+
+<br><br>
+
+<img id=i width=400>
+
+<script>
+
+dosvg = function(color1, color2){
+  return `<?xml version="1.0" encoding="UTF-8"?>
+  <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+  <rect width="1200" height="800" fill="${color2}"/>
+  <circle cx="425" cy="400" r="200" style="fill:${color1}"/>
+  <circle cx="475" cy="400" r="160" style="fill:${color2}"/>
+  <polygon style="fill:${color1}" points="583.334,400 764.235,458.779 652.431,304.894 652.431,495.106 764.235,341.221"/>
+  </svg>`;
+}
+
+onload = c1.onchange = c1.ononput = c2.onchange = c2.ononput = function(){
+  i.src = "data:image/svg+xml;base64," + btoa(dosvg(c1.value, c2.value));
+}
+
+</script>
