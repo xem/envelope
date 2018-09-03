@@ -8,12 +8,13 @@
 // Globals
 // -------
 
-state = 1;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
+state = 101;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
 oldstate = 0;   // Previous screen
 loaded = 0;     // Onload() was already executed
 scroll = 0;     // global X scrolling
 interval = 0;   // interval handle
 X = Y = 0;      // pointer coordinates
+closest = [];   // closest grabbable point
 
 // Puzzles
 // -------
@@ -363,12 +364,6 @@ drawscreen = function(state, texture, xo, yo, zindex) {
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
         if(zindex){
-          /*c.fillStyle = colors[currentcolor];
-          c.strokeStyle = "#5e3c01";
-          c.lineWidth = 1;
-          c.beginPath();
-        }
-        */
         
           c.strokeStyle = "#fff";
           c.shadowColor = 'rgba(255,255,255,.8)';
@@ -385,10 +380,36 @@ drawscreen = function(state, texture, xo, yo, zindex) {
           }
           c.stroke();
           
-          c.fillStyle = "#fff";
+          c.fillStyle = (closest && closest.length && i == closest_i && j == closest_j) ? "#0bf" : "#fff";
           c.beginPath();
           c.arc(xo + points[i][j][0], yo + points[i][j][1], 3, 0, 7)
           c.fill();
+          
+          // Highlight
+          if(closest && closest.length && closest_i == i && closest_j == j){
+            
+            c.strokeStyle = "#0bf";
+            c.beginPath();
+            
+            if(i < size - 1){
+              c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+              c.lineTo(xo + points[i+1][j][0], yo + points[i+1][j][1]);
+            }
+            if(j < size - 1){
+              c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+              c.lineTo(xo + points[i][j+1][0], yo + points[i][j+1][1]);
+            }
+            if(i > 0){
+              c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+              c.lineTo(xo + points[i-1][j][0], yo + points[i-1][j][1]);
+            }
+            if(j > 0){
+              c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+              c.lineTo(xo + points[i][j-1][0], yo + points[i][j-1][1]);
+            }
+            c.stroke();
+            
+          }
         }
       }
     }
@@ -457,16 +478,7 @@ initpuzzle = function(n){
 onclick = function(e){
 
   // Mobile
-  if(e.changedTouches){
-    X = e.changedTouches[0].pageX;
-    Y = e.changedTouches[0].pageY;
-  }
-  
-  // Desktop
-  else{
-    X = e.pageX;
-    Y = e.pageY;
-  }
+  xy(e);
 
   if(!interval){
   
@@ -531,6 +543,68 @@ onclick = function(e){
       }, 33);
     
     }
+  }
+}
+
+mousedown = 0;
+onmousedown = function(e){
+  mousedown = 1;
+  xy(e);
+  
+  // Grab closest point if it's less than 10px away
+  closest = [];
+  closest_i = 0;
+  closest_j = 0;
+  mindist = 10;
+  
+  
+  for(i = 0; i < 3; i++){
+    for(j = 0; j < 3; j++){
+      dist = Math.hypot(points[i][j][0] - X, points[i][j][1] - Y);
+      if(dist < mindist){
+        mindist = dist;
+        //closest = [points[i][j][0], points[i][j][1]];
+        closest = points[i][j];
+        closest_i = i;
+        closest_j = j;
+      }
+    }
+  }
+  console.log(X, Y, closest);
+}
+
+onmousemove = function(e){
+  if(mousedown && closest.length){
+    xy(e);
+    points[closest_i][closest_j] = [X,Y];
+    a.width = a.width;
+    draw(state, 0, 0);
+  }
+}
+
+onmouseup = function(e){
+  mousedown = 0;
+  closest = [];
+  
+  // snap
+  
+  a.width = a.width;
+  draw(state, 0, 0);
+}
+
+
+// Get pointer coordinates on canvas
+xy = function(e){
+  // Mobile
+  if(e.changedTouches){
+    X = e.changedTouches[0].pageX;
+    Y = e.changedTouches[0].pageY;
+  }
+  
+  // Desktop
+  else{
+    X = e.pageX;
+    Y = e.pageY;
   }
 }
 
