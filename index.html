@@ -266,17 +266,17 @@ drawscreen = function(state, texture, xo, yo, zindex) {
     // X
     c.shadowBlur = 0;
     if(Math.abs(xo) < 5 && !interval){
-      c.font = "bold " + vmin * 8 + "px arial";
+      c.font = "bold " + 45 + "px arial";
       c.fillText("⨯", w - 40, 40);
       c.beginPath();
     }
-    
-    // Solution fill/stroke
     
     size = 3;
     level = levels[state - 100][0];
     //console.log(levels, level);
     currentcolor = 0;
+    
+    // Shadow
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
         if(level[i][j+1] && level[i+1] && zindex){
@@ -286,11 +286,11 @@ drawscreen = function(state, texture, xo, yo, zindex) {
           c.shadowColor = 'black';
           c.shadowBlur = 10;
           c.beginPath();
-          c.moveTo(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, yo + level[i][j][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i+1][j][0] * vmin/10, yo + level[i+1][j][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i+1][j+1][0] * vmin/10, yo + level[i+1][j+1][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i][j+1][0] * vmin/10, yo + level[i][j+1][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, yo + level[i][j][1] * vmin/10);
+          c.moveTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
+          c.lineTo(xo + solutions[0][i+1][j][0], yo + solutions[0][i+1][j][1]);
+          c.lineTo(xo + solutions[0][i+1][j+1][0], yo + solutions[0][i+1][j+1][1]);
+          c.lineTo(xo + solutions[0][i][j+1][0], yo + solutions[0][i][j+1][1]);
+          c.lineTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
           c.fill();
           //c.stroke();
           
@@ -299,6 +299,7 @@ drawscreen = function(state, texture, xo, yo, zindex) {
       }
     }
     
+    // Fill
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
         if(level[i][j+1] && level[i+1] && zindex){
@@ -307,11 +308,11 @@ drawscreen = function(state, texture, xo, yo, zindex) {
           c.strokeStyle = "#5e3c01";
           c.shadowBlur = 0;
           c.beginPath();
-          c.moveTo(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, yo + level[i][j][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i+1][j][0] * vmin/10, yo + level[i+1][j][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i+1][j+1][0] * vmin/10, yo + level[i+1][j+1][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i][j+1][0] * vmin/10, yo + level[i][j+1][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, yo + level[i][j][1] * vmin/10);
+          c.moveTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
+          c.lineTo(xo + solutions[0][i+1][j][0], yo + solutions[0][i+1][j][1]);
+          c.lineTo(xo + solutions[0][i+1][j+1][0], yo + solutions[0][i+1][j+1][1]);
+          c.lineTo(xo + solutions[0][i][j+1][0], yo + solutions[0][i][j+1][1]);
+          c.lineTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
           c.fill();
           //c.stroke();
           
@@ -320,20 +321,22 @@ drawscreen = function(state, texture, xo, yo, zindex) {
       }
     }
     
+    
+    // Stroke
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
         if(level[i][j+1] && level[i+1] && zindex){
           pattern = c.createPattern(w1,"");
           c.fillStyle = pattern;
-          c.strokeStyle = "#fff";
-          c.lineWidth = .2;
+          c.strokeStyle = "#d93";
+          c.lineWidth = 1;
           c.shadowBlur = 0;
           c.beginPath();
-          c.moveTo(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, yo + level[i][j][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i+1][j][0] * vmin/10, yo + level[i+1][j][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i+1][j+1][0] * vmin/10, yo + level[i+1][j+1][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i][j+1][0] * vmin/10, yo + level[i][j+1][1] * vmin/10);
-          c.lineTo(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, yo + level[i][j][1] * vmin/10);
+          c.moveTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
+          c.lineTo(xo + solutions[0][i+1][j][0], yo + solutions[0][i+1][j][1]);
+          c.lineTo(xo + solutions[0][i+1][j+1][0], yo + solutions[0][i+1][j+1][1]);
+          c.lineTo(xo + solutions[0][i][j+1][0], yo + solutions[0][i][j+1][1]);
+          c.lineTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
           //c.fill();
           c.stroke();
           
@@ -342,14 +345,14 @@ drawscreen = function(state, texture, xo, yo, zindex) {
       }
     }
     
-    // Solution dots
+    // Dots
     
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
         if(zindex){
-          c.fillStyle = "#fff";
+          c.fillStyle = "#d93";
           c.beginPath();
-          c.arc(xo + w/2 - 40 * vmin + level[i][j][0] * vmin/10, level[i][j][1] * vmin/10, 2, 0, 7);
+          c.arc(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1], 3, 0, 7);
           c.fill()
         }
       }
@@ -359,7 +362,7 @@ drawscreen = function(state, texture, xo, yo, zindex) {
     // Grid
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
-        if(level[i][j+1] && level[i+1] && zindex){
+        if(zindex){
           /*c.fillStyle = colors[currentcolor];
           c.strokeStyle = "#5e3c01";
           c.lineWidth = 1;
@@ -368,25 +371,24 @@ drawscreen = function(state, texture, xo, yo, zindex) {
         */
         
           c.strokeStyle = "#fff";
-          c.shadowColor = 'rgb(255,255,255)';
+          c.shadowColor = 'rgba(255,255,255,.8)';
           c.shadowBlur = 10;
           c.lineWidth = 1;
           c.beginPath();
-          c.moveTo(xo + w/2 - 15 * vmin + i * 12 * vmin, yo + h/2 + h/8 + 12 * j * vmin);
-          c.lineTo(xo + w/2 - 15 * vmin + (i+1) * 12 * vmin, yo + h/2 + h/8 + 12 * j * vmin);
-          c.lineTo(xo + w/2 - 15 * vmin + (i+1) * 12 * vmin, yo + h/2 + h/8 + 12 * (j+1) * vmin);
-          c.lineTo(xo + w/2 - 15 * vmin + i * 12 * vmin, yo + h/2 + h/8 + 12 * (j+1) * vmin);
-          c.lineTo(xo + w/2 - 15 * vmin + i * 12 * vmin, yo + h/2 + h/8 + 12 * j * vmin);
+          if(i < size - 1){
+            c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+            c.lineTo(xo + points[i+1][j][0], yo + points[i+1][j][1]);
+          }
+          if(j < size - 1){
+            c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+            c.lineTo(xo + points[i][j+1][0], yo + points[i][j+1][1]);
+          }
           c.stroke();
-          
-          
-        }
-        
-        if(zindex){
           
           c.fillStyle = "#fff";
           c.beginPath();
-          c.fillRect(xo + w/2 - 15 * vmin + i * 12 * vmin - 2, yo + h/2 + h/8 + 12 * j * vmin - 2, 4, 4);
+          c.arc(xo + points[i][j][0], yo + points[i][j][1], 3, 0, 7)
+          c.fill();
         }
       }
     }
@@ -433,8 +435,18 @@ initpuzzle = function(n){
     solutions[i*8+7] = rotate3(solutions[i*8+6]);
   }
   
-  // Init the bottom grid
+  // Init the bottom grid (draggable points)
   points = [];
+  
+  for(i = 0; i < 3; i++){
+    points[i] = [];
+    for(j = 0; j < 3; j++){
+      points[i][j] = [
+        w/2 - 15 * vmin + i * 12 * vmin + j * (i - 1.1) * vmin,
+        h/2 + h/8 + 11 * j * vmin + j * (1.1) * vmin
+      ];
+    }
+  }
   
   // Mark the puzzle as unsolved
   solved = 0;
