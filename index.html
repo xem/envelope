@@ -1,4 +1,11 @@
-﻿<title>envelope</title>
+﻿<!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-tap-highlight" content="no">
+<title>envelope</title>
 <canvas id=a></canvas>
 <script>
 
@@ -8,7 +15,7 @@
 // Globals
 // -------
 
-state = 1;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
+state = 0;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
 oldstate = 0;   // Previous screen
 loaded = 0;     // Onload() was already executed
 scroll = 0;     // global X scrolling
@@ -17,6 +24,7 @@ X = Y = 0;      // pointer coordinates
 closest = [];   // closest grabbable point
 points = [];    // draggable points
 solutions = []; // solutions
+win = 0;        // win flag
 
 // Puzzles
 // -------
@@ -573,45 +581,9 @@ onclick = function(e){
   // Mobile
   xy(e);
 
-  if(!interval){
   
-    oldstate = state;
   
-    // On title screen (0)
-    // New state: menu (1)
-    if(state == 0){
-    
-      state = 1;
-      
-    }
-    
-    // On menu screen
-    else if(state == 1){
-      tmp = draw(state, 0, 0);
-      if(tmp){
-        state = tmp + 100;
-        initpuzzle(tmp);
-      }
-      
-    }
-    
-    // On puzzle screen
-    else {
-      if(X > w - 60 && Y < 60){
-        state = 1;
-      }
-      
-      if(X < 60 && Y < 60){
-        initpuzzle(state - 100);
-        draw();
-      }
-    }
-    
-    
-    if(state != oldstate){
-      transition();
-    }
-  }
+  e.preventDefault();
 }
 
 transition = function(){
@@ -649,7 +621,7 @@ transition = function(){
 }
 
 mousedown = 0;
-onmousedown = function(e){
+onmousedown = ontouchstart = function(e){
   mousedown = 1;
   xy(e);
   
@@ -676,7 +648,7 @@ onmousedown = function(e){
   }
 }
 
-onmousemove = function(e){
+onmousemove = ontouchmove = function(e){
   if(mousedown && closest.length){
     xy(e);
     points[closest_i][closest_j] = [X,Y];
@@ -685,7 +657,7 @@ onmousemove = function(e){
   }
 }
 
-onmouseup = function(e){
+onmouseup = ontouchend = function(e){
   xy(e);
   
   if(state > 100){
@@ -741,7 +713,56 @@ onmouseup = function(e){
       localStorage["envelope" + (state - 100)] = 1;
     }
   }
+  
+  
+  if(!interval){
+  
+    oldstate = state;
+  
+    // On title screen (0)
+    // New state: menu (1)
+    if(state == 0){
+    
+      state = 1;
+      
+    }
+    
+    // On menu screen
+    else if(state == 1){
+      tmp = draw(state, 0, 0);
+      if(tmp){
+        state = tmp + 100;
+        initpuzzle(tmp);
+      }
+      
+    }
+    
+    // On puzzle screen
+    else {
+      if(X > w - 60 && Y < 60){
+        state = 1;
+      }
+      
+      if(X < 60 && Y < 60){
+        initpuzzle(state - 100);
+        draw();
+      }
+    }
+    
+    
+    if(state != oldstate){
+      transition();
+    }
+  }
+  
+  e.preventDefault();
+  
 }
+
+ondrag = function(e){
+  e.preventDefault();
+}
+
 
 // Get pointer coordinates on canvas
 xy = function(e){
