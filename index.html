@@ -15,7 +15,7 @@
 // Globals
 // -------
 
-state = 0;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
+state = 1;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
 oldstate = 0;   // Previous screen
 loaded = 0;     // Onload() was already executed
 scroll = 0;     // global X scrolling
@@ -182,8 +182,8 @@ onload = onresize = function(){
       w2.src = "data:image/svg+xml;base64," + btoa(makewood("#5B2E0B", "#6c3809"));
       
       // Darker
-      w3 = new Image();
-      w3.src = "data:image/svg+xml;base64," + btoa(makewood("#56340c", "#4c2809"));
+      //w3 = new Image();
+      //w3.src = "data:image/svg+xml;base64," + btoa(makewood("#56340c", "#4c2809"));
   }
   
   // Canvas CSS background (even darker)
@@ -191,7 +191,7 @@ onload = onresize = function(){
   a.style.backgroundSize = "100vh"; 
   
   // When the images are ready, draw the title screen
-  w3.onload = function(){
+  w2.onload = function(){
     draw(state, 0, 0);
   }
   
@@ -203,83 +203,89 @@ onload = onresize = function(){
 // Draw a screen four times (3 times with the dark texture and once with the light texture.
 // A little offset is added to each layer to simulate depth
 draw = function(screen, xo, yo, win){
-  drawscreen(screen, w2, -.5 + xo, 2 + yo, 0, win);
-  drawscreen(screen, w2, -1 + xo, 4 + yo, 0, win);
-  drawscreen(screen, w2, -1.5 + xo, 6 + yo, 0, win);
-  return drawscreen(screen, w1, 0 + xo, 0 + yo, 1, win);
-}
 
-// Draw a screen
-drawscreen = function(state, texture, xo, yo, zindex, win) {
+  //console.log(1);
 
-  console.log(1);
-
-  // Save the texture in the second param as a canvas pattern
-  pattern = c.createPattern(texture, "");
-  c.fillStyle = pattern;
+  // texture
+  //pattern = c.createPattern(texture, "");
+  //c.fillStyle = pattern;
   
   // Return value (next screen to show)
   ret = 0;
 
   // Draw title screen (0)
-  if(state == 0){
+  if(screen == 0){
   
     c.font = "bold " + (20 * vmin) + "px arial";
     c.textAlign = 'center';
     c.translate(w / 2 + xo, h / 2 + yo);
-      c.fillText("envelope", 0, 0);
-      c.beginPath();
-      c.moveTo(-20, 50);
-      c.lineTo(20, 75);
-      c.lineTo(-20, 100);
-      c.fill();
+      
+      for(I = 0; I < 4; I++){
+        
+        pattern = c.createPattern(I == 3 ? w1 : w2, "");
+        c.fillStyle = pattern;
+                
+        c.beginPath();
+        c.fillText("envelope", .5 * I * vmin / 3, -1 * I * vmin / 3);
+        c.beginPath();
+        c.moveTo(-20 + .5 * I * vmin / 3, 50 - 1 * I * vmin / 3);
+        c.lineTo(20 + .5 * I * vmin / 3, 75 - 1 * I * vmin / 3);
+        c.lineTo(-20 + .5 * I * vmin / 3, 100 - 1 * I * vmin / 3);
+        c.fill();
+      }
+
     c.translate(-w / 2 - xo, -h / 2 - yo);
 
   }
   
   // Draw menu screen (1)
-  else if(state == 1){
+  else if(screen == 1){
   
     c.shadowBlur = 0;
     
     c.translate(w/2 + xo, h / 2 - h / 4 + yo);
+    
+    
+    
+    for(I = 0; I < 4; I++){
+        
+      pattern = c.createPattern(I == 3 ? w1 : w2, "");
+      c.fillStyle = pattern;
 
-    // Text
-    c.font = "bold " + vmin * 20 + "px arial";
-    c.textAlign = 'center';
-    c.fillText("level", 0, 0);
-    
-    // Squares
-    c.font = "bold " + 8 * vmin + "px arial";
-    for(i = 0; i < 4; i++){
-      for(j = 0; j < 3; j++){
-        c.fillRect(i * vmin * 20 - 35 * vmin, j * vmin * 20 + 12 * vmin, 10 * vmin, 10 * vmin);
-        c.beginPath();
-        c.rect(i * vmin * 20 - 35 * vmin, j * vmin * 20 + 12 * vmin, 10 * vmin, 10 * vmin);
-        c.closePath();
-        if(c.isPointInPath(X,Y)){
-          ret = j * 4 + i + 1;
-        }
-      }
-    }
-    
-    // Numbers
-    pattern = c.createPattern(w3, "");
-    c.fillStyle = pattern;
-    if(zindex){
+      // Text
+      c.font = "bold " + vmin * 20 + "px arial";
+      c.textAlign = 'center';
+      c.fillText("level", .5 * I * vmin / 3, -1 * I * vmin / 3);
+      
+      // Squares
+      c.font = "bold " + 8 * vmin + "px arial";
       for(i = 0; i < 4; i++){
         for(j = 0; j < 3; j++){
-          c.fillText(j*4+i+1, i * vmin * 20 - 30 * vmin, j * vmin * 20 + 20 * vmin);
+        
+          // Squares
+          c.fillRect(i * vmin * 20 - 35 * vmin + .5 * I * vmin / 3, j * vmin * 20 + 12 * vmin - 1 * I * vmin / 3, 10 * vmin, 10 * vmin);
+          c.beginPath();
         }
       }
-    }    
-    
-    // Checks
-    if(zindex){
+      
       for(i = 0; i < 4; i++){
         for(j = 0; j < 3; j++){
+        
+          // Clickable squares
+          c.rect(i * vmin * 20 - 35 * vmin + .5 * I * vmin / 3, j * vmin * 20 + 12 * vmin - 1 * I * vmin / 3, 10 * vmin, 10 * vmin);
+        
+          c.closePath();
+          
+          if(c.isPointInPath(X,Y)){
+            ret = j * 4 + i + 1;
+          }
+          
+          // Numbers
+          c.fillStyle = "#56340c";
+          c.fillText(j*4+i+1, i * vmin * 20 - 29.8 * vmin, j * vmin * 20 + 19 * vmin);
+
+          // Checks
           if(localStorage["envelope" + (j*4+i+1)]){
-            console.log("envelope" + (j*4+i+1));
             c.drawImage(check, i * vmin * 20 - 28 * vmin, j * vmin * 20 + 8 * vmin, 8 * vmin, 8 * vmin);
           }
         }
@@ -293,6 +299,10 @@ drawscreen = function(state, texture, xo, yo, zindex, win) {
   else if(state > 100){
   
     c.shadowBlur = 0;
+    
+    pattern = c.createPattern(w1, "");
+    c.fillStyle = pattern;
+    
     if(Math.abs(xo) < 5 && !interval){
       
       // X
@@ -302,9 +312,11 @@ drawscreen = function(state, texture, xo, yo, zindex, win) {
 
       // Restart
       c.beginPath();
-      c.fillText("↻", 20, 40);      
+      c.font = "bold " + 40 + "px arial";
+      c.fillText("↻", 40, 40);      
     }
     
+    /*
     c.beginPath();
     
     size = 3;
@@ -497,7 +509,7 @@ drawscreen = function(state, texture, xo, yo, zindex, win) {
       setTimeout(function(){
         onclick({pageX: w, pageY: 0});
       }, 2000);
-    }
+    }*/
   }
   
   return ret;
@@ -581,8 +593,6 @@ onclick = function(e){
   // Mobile
   xy(e);
 
-  
-  
   e.preventDefault();
 }
 
@@ -626,7 +636,7 @@ onmousedown = ontouchstart = function(e){
   xy(e);
   
   // Grab closest point if it's less than 10px away
-  closest = [];
+  /*closest = [];
   closest_i = -1;
   closest_j = -1;
   mindist = 10;
@@ -645,22 +655,26 @@ onmousedown = ontouchstart = function(e){
         }
       }
     }
-  }
+  }*/
+  
+  e.preventDefault();
 }
 
 onmousemove = ontouchmove = function(e){
-  if(mousedown && closest.length){
+  /*if(mousedown && closest.length){
     xy(e);
     points[closest_i][closest_j] = [X,Y];
     a.width = a.width;
     draw(state, 0, 0);
   }
+  
+  e.preventDefault();*/
 }
 
 onmouseup = ontouchend = function(e){
   xy(e);
   
-  if(state > 100){
+  /*if(state > 100){
   
     // Snap
     for(i = 0; i < 3; i++){
@@ -713,6 +727,7 @@ onmouseup = ontouchend = function(e){
       localStorage["envelope" + (state - 100)] = 1;
     }
   }
+  */
   
   
   if(!interval){
@@ -727,7 +742,8 @@ onmouseup = ontouchend = function(e){
       
     }
     
-    // On menu screen
+    // On menu screen (1)
+    // New screen: a puzzle (101-112)
     else if(state == 1){
       tmp = draw(state, 0, 0);
       if(tmp){
@@ -739,11 +755,14 @@ onmouseup = ontouchend = function(e){
     
     // On puzzle screen
     else {
-      if(X > w - 60 && Y < 60){
+    
+      // Quit
+      if(X > w - 70 && Y < 70){
         state = 1;
       }
       
-      if(X < 60 && Y < 60){
+      // Reset
+      if(X < 70 && Y < 70){
         initpuzzle(state - 100);
         draw();
       }
