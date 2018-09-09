@@ -25,6 +25,7 @@ closest = [];   // closest grabbable point
 points = [];    // draggable points
 solutions = []; // solutions
 win = 0;        // win flag
+mobile = navigator.userAgent.match(/iPhone|iPad|Android/);
 
 // Puzzles
 // -------
@@ -150,7 +151,7 @@ onload = onresize = function(){
   vmin = Math.min(w, h) / 100;
   
   // Get new context2d
-  c = a.getContext("2d");
+  if(!loaded) c = a.getContext("2d");
   
   // (re)init puzzle on resize
   if(state > 100){
@@ -165,7 +166,6 @@ onload = onresize = function(){
   
   // On load:
   else {
-  
     // Generate a check texture
     
       check = new Image();
@@ -184,15 +184,15 @@ onload = onresize = function(){
       // Darker
       //w3 = new Image();
       //w3.src = "data:image/svg+xml;base64," + btoa(makewood("#56340c", "#4c2809"));
-  }
-  
-  // Canvas CSS background (even darker)
-  a.style.background = "url('data:image/svg+xml;base64," + btoa(makewood("#281404", "#301704")) + "') repeat center top";
-  a.style.backgroundSize = "100vh"; 
-  
-  // When the images are ready, draw the title screen
-  w2.onload = function(){
-    draw(state, 0, 0);
+
+    // Canvas CSS background (even darker)
+    a.style.background = "url('data:image/svg+xml;base64," + btoa(makewood("#281404", "#301704")) + "') repeat center top";
+    a.style.backgroundSize = "100vh"; 
+
+    // When the images are ready, draw the title screen
+    w2.onload = function(){
+      draw(state, 0, 0);
+    }
   }
   
   // Remember that load() has executed
@@ -222,8 +222,10 @@ draw = function(screen, xo, yo, win){
       
       for(I = 0; I < 4; I++){
         
-        pattern = c.createPattern(I == 3 ? w1 : w2, "");
-        c.fillStyle = pattern;
+        if(I != 1 && I != 2){
+          pattern = c.createPattern(I == 3 ? w1 : w2, "");
+          c.fillStyle = pattern;
+        }
                 
         c.beginPath();
         c.fillText("envelope", .5 * I * vmin / 3, -1 * I * vmin / 3);
@@ -245,13 +247,13 @@ draw = function(screen, xo, yo, win){
     
     c.translate(w/2 + xo, h / 2 - h / 4 + yo);
     
-    
-    
     for(I = 0; I < 4; I++){
         
-      pattern = c.createPattern(I == 3 ? w1 : w2, "");
-      c.fillStyle = pattern;
-
+      if(I != 1 && I != 2){
+        pattern = c.createPattern(I == 3 ? w1 : w2, "");
+        c.fillStyle = pattern;
+      }
+      
       // Text
       c.font = "bold " + vmin * 20 + "px arial";
       c.textAlign = 'center';
@@ -272,15 +274,19 @@ draw = function(screen, xo, yo, win){
         for(j = 0; j < 3; j++){
         
           // Clickable squares
+          c.beginPath();
           c.rect(i * vmin * 20 - 35 * vmin + .5 * I * vmin / 3, j * vmin * 20 + 12 * vmin - 1 * I * vmin / 3, 10 * vmin, 10 * vmin);
         
           c.closePath();
           
           if(c.isPointInPath(X,Y)){
             ret = j * 4 + i + 1;
+            
+            //console.log(ret);
           }
           
           // Numbers
+          c.beginPath();
           c.fillStyle = "#56340c";
           c.fillText(j*4+i+1, i * vmin * 20 - 29.8 * vmin, j * vmin * 20 + 19 * vmin);
 
@@ -303,20 +309,19 @@ draw = function(screen, xo, yo, win){
     pattern = c.createPattern(w1, "");
     c.fillStyle = pattern;
     
-    if(Math.abs(xo) < 5 && !interval){
+    if(Math.abs(xo) < 1 && !interval){
       
       // X
       c.beginPath();
       c.font = "bold " + 45 + "px arial";
-      c.fillText("⨯", w - 40, 40);
+      c.fillText("⨯", w - 50, 40);
 
       // Restart
       c.beginPath();
       c.font = "bold " + 40 + "px arial";
-      c.fillText("↻", 40, 40);      
+      c.fillText("↻", 30, 40);      
     }
     
-    /*
     c.beginPath();
     
     size = 3;
@@ -326,7 +331,7 @@ draw = function(screen, xo, yo, win){
     // Shadow
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
-        if(level[i][j+1] && level[i+1] && zindex){
+        if(level[i][j+1] && level[i+1]){
           pattern = c.createPattern(w1,"");
           c.fillStyle = pattern;
           c.strokeStyle = "#5e3c01";
@@ -348,23 +353,25 @@ draw = function(screen, xo, yo, win){
     
     // Fill
     c.translate(xo, yo);
-    for(i = 0; i < size; i++){
-      for(j = 0; j < size; j++){
-        if(level[i][j+1] && level[i+1] && zindex){
-          pattern = c.createPattern(texture,"");
-          c.fillStyle = pattern;
-          c.strokeStyle = "#5e3c01";
-          c.shadowBlur = 0;
-          c.beginPath();
-          c.moveTo(solutions[0][i][j][0], solutions[0][i][j][1]);
-          c.lineTo(solutions[0][i+1][j][0]+2, solutions[0][i+1][j][1]);
-          c.lineTo(solutions[0][i+1][j+1][0]+2, solutions[0][i+1][j+1][1]+2);
-          c.lineTo(solutions[0][i][j+1][0], solutions[0][i][j+1][1]+2);
-          c.lineTo(solutions[0][i][j][0], solutions[0][i][j][1]);
-          c.fill();
-          //c.stroke();
-          
-         
+    for(k = 0; k < (interval ? 1 : 3); k++){
+      for(i = 0; i < size; i++){
+        for(j = 0; j < size; j++){
+          if(level[i][j+1] && level[i+1]){
+            pattern = c.createPattern(w1,"");
+            c.fillStyle = pattern;
+            c.strokeStyle = "#5e3c01";
+            c.shadowBlur = 0;
+            c.beginPath();
+            c.moveTo(solutions[0][i][j][0], solutions[0][i][j][1]);
+            c.lineTo(solutions[0][i+1][j][0], solutions[0][i+1][j][1]);
+            c.lineTo(solutions[0][i+1][j+1][0], solutions[0][i+1][j+1][1]);
+            c.lineTo(solutions[0][i][j+1][0], solutions[0][i][j+1][1]);
+            c.lineTo(solutions[0][i][j][0], solutions[0][i][j][1]);
+            c.fill();
+            //c.stroke();
+            
+           
+          }
         }
       }
     }
@@ -376,9 +383,7 @@ draw = function(screen, xo, yo, win){
     
       for(i = 0; i < size; i++){
         for(j = 0; j < size; j++){
-          if(level[i][j+1] && level[i+1] && zindex){
-            pattern = c.createPattern(w1,"");
-            c.fillStyle = pattern;
+          if(level[i][j+1] && level[i+1]){
             c.strokeStyle = "#d93";
             c.lineWidth = 1;
             c.shadowBlur = 0;
@@ -388,7 +393,6 @@ draw = function(screen, xo, yo, win){
             c.lineTo(xo + solutions[0][i+1][j+1][0], yo + solutions[0][i+1][j+1][1]);
             c.lineTo(xo + solutions[0][i][j+1][0], yo + solutions[0][i][j+1][1]);
             c.lineTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
-            //c.fill();
             c.stroke();
             
            
@@ -400,25 +404,43 @@ draw = function(screen, xo, yo, win){
       
       for(i = 0; i < size; i++){
         for(j = 0; j < size; j++){
-          if(zindex){
-            c.fillStyle = "#d93";
-            c.beginPath();
-            c.arc(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1], 3, 0, 7);
-            c.fill()
-          }
+          c.fillStyle = "#d93";
+          c.beginPath();
+          c.arc(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1], 3, 0, 7);
+          c.fill()
         }
       }
       
       // Grid
       for(i = 0; i < size; i++){
         for(j = 0; j < size; j++){
-          if(zindex){
           
-            c.strokeStyle = "#fff";
-            c.shadowColor = 'rgba(255,255,255,.8)';
-            c.shadowBlur = 10;
-            c.lineWidth = 1;
+          c.strokeStyle = "#fff";
+          c.shadowColor = 'rgba(255,255,255,.8)';
+          c.shadowBlur = 10;
+          c.lineWidth = 1;
+          c.beginPath();
+          if(i < size - 1){
+            c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+            c.lineTo(xo + points[i+1][j][0], yo + points[i+1][j][1]);
+          }
+          if(j < size - 1){
+            c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+            c.lineTo(xo + points[i][j+1][0], yo + points[i][j+1][1]);
+          }
+          c.stroke();
+          
+          c.fillStyle = (closest && closest.length && i == closest_i && j == closest_j) ? "#0bf" : "#fff";
+          c.beginPath();
+          c.arc(xo + points[i][j][0], yo + points[i][j][1], 3, 0, 7)
+          c.fill();
+          
+          // Highlight
+          if(closest && closest.length && closest_i == i && closest_j == j){
+            
+            c.strokeStyle = "#0bf";
             c.beginPath();
+            
             if(i < size - 1){
               c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
               c.lineTo(xo + points[i+1][j][0], yo + points[i+1][j][1]);
@@ -427,46 +449,22 @@ draw = function(screen, xo, yo, win){
               c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
               c.lineTo(xo + points[i][j+1][0], yo + points[i][j+1][1]);
             }
+            if(i > 0){
+              c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+              c.lineTo(xo + points[i-1][j][0], yo + points[i-1][j][1]);
+            }
+            if(j > 0){
+              c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
+              c.lineTo(xo + points[i][j-1][0], yo + points[i][j-1][1]);
+            }
             c.stroke();
             
-            c.fillStyle = (closest && closest.length && i == closest_i && j == closest_j) ? "#0bf" : "#fff";
-            c.beginPath();
-            c.arc(xo + points[i][j][0], yo + points[i][j][1], 3, 0, 7)
-            c.fill();
-            
-            // Highlight
-            if(closest && closest.length && closest_i == i && closest_j == j){
-              
-              c.strokeStyle = "#0bf";
-              c.beginPath();
-              
-              if(i < size - 1){
-                c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
-                c.lineTo(xo + points[i+1][j][0], yo + points[i+1][j][1]);
-              }
-              if(j < size - 1){
-                c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
-                c.lineTo(xo + points[i][j+1][0], yo + points[i][j+1][1]);
-              }
-              if(i > 0){
-                c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
-                c.lineTo(xo + points[i-1][j][0], yo + points[i-1][j][1]);
-              }
-              if(j > 0){
-                c.moveTo(xo + points[i][j][0], yo + points[i][j][1]);
-                c.lineTo(xo + points[i][j-1][0], yo + points[i][j-1][1]);
-              }
-              c.stroke();
-              
-            }
           }
         }
       }
     }
     
     if(win){
-      
-      //console.log(state);
       
       // Draw eyes/mouth on puzzle 3 when solved (ray)
       if(state == 103){
@@ -509,7 +507,9 @@ draw = function(screen, xo, yo, win){
       setTimeout(function(){
         onclick({pageX: w, pageY: 0});
       }, 2000);
-    }*/
+    }
+    
+    //*/
   }
   
   return ret;
@@ -589,44 +589,51 @@ initpuzzle = function(n){
 
 // Handle click events
 onclick = function(e){
-
-  // Mobile
-  xy(e);
-
-  e.preventDefault();
+  //e.preventDefault();
 }
 
 transition = function(){
 
-  // Transition
-  loops = 30;
-  interval = setInterval(function(){
-  
-    // Scroll with a speed proportional to a sine wave
-    scroll += w/30 * Math.sin(loops / 30 * 3.14) * 1.57;
-    
-    // Reset canvas
-    a.width = a.width;
-    
-    // Draw old screen moving left
-    draw(oldstate, -scroll, 0, win);
-    
-    // Draw new screen arriving from the right
-    draw(state, w - scroll, 0), 
-    
-    // Scroll background image
-    a.style.backgroundPosition = "-" + scroll + "px";
-    
-    // Repeat until the 60 loops are passed
-    loops--;
-    if(loops == 0){
-      clearInterval(interval);
-      interval = 0;
-      loops = 30;
-      scroll = 0;
+  // Mobile: just show the new screen
+  if(mobile){
+      a.width = a.width;
       draw(state, 0, 0);
-    }
-  }, 33);
+  }
+  
+  else {
+  
+
+    // Desktop: transition
+    loops = 30;
+    interval = setInterval(function(){
+    
+      // Scroll with a speed proportional to a sine wave
+      scroll += w/30 * Math.sin(loops / 30 * 3.14) * 1.57;
+      
+      // Reset canvas
+      a.width = a.width;
+      
+      // Draw old screen moving left
+      draw(oldstate, -scroll, 0, win);
+      
+      // Draw new screen arriving from the right
+      draw(state, w - scroll, 0), 
+      
+      // Scroll background image
+      a.style.backgroundPosition = "-" + scroll + "px";
+      
+      // Repeat until the 60 loops are passed
+      loops--;
+      if(loops == 0){
+        clearInterval(interval);
+        interval = 0;
+        loops = 30;
+        scroll = 0;
+        draw(state, 0, 0);
+        onresize();
+      }
+    }, 33);
+  }
   
 }
 
@@ -636,10 +643,10 @@ onmousedown = ontouchstart = function(e){
   xy(e);
   
   // Grab closest point if it's less than 10px away
-  /*closest = [];
+  closest = [];
   closest_i = -1;
   closest_j = -1;
-  mindist = 10;
+  mindist = 20;
   
   
   for(i = 0; i < 3; i++){
@@ -655,79 +662,23 @@ onmousedown = ontouchstart = function(e){
         }
       }
     }
-  }*/
+  }
   
   e.preventDefault();
 }
 
 onmousemove = ontouchmove = function(e){
-  /*if(mousedown && closest.length){
+  if(mousedown && closest.length){
     xy(e);
     points[closest_i][closest_j] = [X,Y];
     a.width = a.width;
     draw(state, 0, 0);
   }
-  
-  e.preventDefault();*/
+  e.preventDefault();
 }
 
 onmouseup = ontouchend = function(e){
   xy(e);
-  
-  /*if(state > 100){
-  
-    // Snap
-    for(i = 0; i < 3; i++){
-      for(j = 0; j < 3; j++){
-        if(solutions[0]){
-          dist = Math.hypot(solutions[0][i][j][0] - X, solutions[0][i][j][1] - Y);
-          if(dist < 30 && closest_i >= 0){
-            mindist = dist;
-            points[closest_i][closest_j] = solutions[0][i][j];
-          }
-        }
-      }
-    }
-    
-    mousedown = 0;
-    closest = [];
-    closest_i = -1;
-    closest_j = -1;
-    
-    // Check solution
-    win = 0;
-    for(i in solutions){
-      win = 1;
-      for(j = 0; j < 3; j++){
-        for(k = 0; k < 3; k++){
-          if(points[j][k][0] == solutions[i][j][k][0] && points[j][k][1] == solutions[i][j][k][1]){
-            // ok
-          }
-          else {
-            win = 0;
-          }
-        }
-      }
-      if(win){
-        break;
-      }
-    }
-    
-    //win = 1;
-    
-    
-    
-    a.width = a.width;
-    draw(state, 0, 0, win);
-    if(win){
-        
-      A = new Audio();
-      A.src = "win.mp3";
-      A.play();
-      localStorage["envelope" + (state - 100)] = 1;
-    }
-  }
-  */
   
   
   if(!interval){
@@ -746,6 +697,7 @@ onmouseup = ontouchend = function(e){
     // New screen: a puzzle (101-112)
     else if(state == 1){
       tmp = draw(state, 0, 0);
+      console.log(tmp);
       if(tmp){
         state = tmp + 100;
         initpuzzle(tmp);
@@ -754,22 +706,76 @@ onmouseup = ontouchend = function(e){
     }
     
     // On puzzle screen
-    else {
+    else if(state > 100) {
     
       // Quit
       if(X > w - 70 && Y < 70){
+        oldstate = state;
         state = 1;
       }
       
       // Reset
       if(X < 70 && Y < 70){
+        a.width = a.width;
         initpuzzle(state - 100);
-        draw();
+        draw(state, 0, 0);
+      }
+      
+      // Snap
+      for(i = 0; i < 3; i++){
+        for(j = 0; j < 3; j++){
+          if(solutions[0]){
+            dist = Math.hypot(solutions[0][i][j][0] - X, solutions[0][i][j][1] - Y);
+            if(dist < 30 && closest_i >= 0){
+              mindist = dist;
+              points[closest_i][closest_j] = solutions[0][i][j];
+              
+            }
+          }
+        }
+      }
+      
+      mousedown = 0;
+      closest = [];
+      closest_i = -1;
+      closest_j = -1
+      a.width = a.width;
+      draw(state,0,0);
+      
+      // Check solution
+      win = 0;
+      for(i in solutions){
+        win = 1;
+        for(j = 0; j < 3; j++){
+          for(k = 0; k < 3; k++){
+            if(points[j][k][0] == solutions[i][j][k][0] && points[j][k][1] == solutions[i][j][k][1]){
+              // ok
+            }
+            else {
+              win = 0;
+            }
+          }
+        }
+        if(win){
+          break;
+        }
+      }
+      
+      //win = 1;
+      
+      if(win){
+          
+        a.width = a.width;
+        draw(state, 0, 0, win);
+        A = new Audio();
+        A.src = "win.mp3";
+        A.play();
+        localStorage["envelope" + (state - 100)] = 1;
       }
     }
     
-    
     if(state != oldstate){
+      console.log(oldstate, state);
       transition();
     }
   }
@@ -872,7 +878,7 @@ music = function(){
 }
 
 music();
-//setInterval(music, 14990);
+setInterval(music, 14990);
 
 
 </script>
@@ -884,4 +890,14 @@ music();
 
 /* The DOM added by the loom extension breaks my SVGs, so this is a protection */ 
 loom-container { display: none }
+
+/* No highlight on mobile */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 </style>
