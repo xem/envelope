@@ -606,9 +606,9 @@ initpuzzle = function(n){
 
 
 // Handle click events
-//onclick = function(e){
-  //e.preventDefault();
-//}
+onclick = function(e){
+  e.preventDefault();
+}
 
 transition = function(){
 
@@ -685,7 +685,7 @@ onmousedown = ontouchstart = function(e){
     }
   }
   
-  //e.preventDefault();
+  e.preventDefault();
 }
 
 onmousemove = ontouchmove = function(e){
@@ -695,7 +695,7 @@ onmousemove = ontouchmove = function(e){
     a.width = a.width;
     draw(state, 0, 0);
   }
-  //e.preventDefault();
+  e.preventDefault();
 }
 
 onmouseup = ontouchend = function(e){
