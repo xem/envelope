@@ -15,7 +15,7 @@
 // Globals
 // -------
 
-state = 1;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
+state = 0;      // Current screen (0: title / 1: menu / 101-112: puzzles 1-12)
 oldstate = 0;   // Previous screen
 loaded = 0;     // Onload() was already executed
 scroll = 0;     // global X scrolling
@@ -171,7 +171,7 @@ onload = onresize = function(){
       check = new Image();
       check.src = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><g stroke="#2ca02c" stroke-width="2.3" fill="transparent"><circle cx="10" cy="10" r="8.5"/><path d="M5.2,10 8.5,13.4 14.8,7.2"/></g></svg>');
   
-    // Generate 3 wood textures
+    // Generate 2 wood textures
     
       // Light
       w1 = new Image();
@@ -180,11 +180,7 @@ onload = onresize = function(){
       // Dark
       w2 = new Image();
       w2.src = "data:image/svg+xml;base64," + btoa(makewood("#5B2E0B", "#6c3809"));
-      
-      // Darker
-      //w3 = new Image();
-      //w3.src = "data:image/svg+xml;base64," + btoa(makewood("#56340c", "#4c2809"));
-
+    
     // Canvas CSS background (even darker)
     a.style.background = "url('data:image/svg+xml;base64," + btoa(makewood("#281404", "#301704")) + "') repeat center top";
     a.style.backgroundSize = "100vh"; 
@@ -204,12 +200,6 @@ onload = onresize = function(){
 // A little offset is added to each layer to simulate depth
 draw = function(screen, xo, yo, win){
 
-  //console.log(1);
-
-  // texture
-  //pattern = c.createPattern(texture, "");
-  //c.fillStyle = pattern;
-  
   // Return value (next screen to show)
   ret = 0;
 
@@ -222,9 +212,18 @@ draw = function(screen, xo, yo, win){
       
       for(I = 0; I < 4; I++){
         
-        if(I != 1 && I != 2){
-          pattern = c.createPattern(I == 3 ? w1 : w2, "");
-          c.fillStyle = pattern;
+        if(mobile){
+          if(I != 1 && I != 2){
+            pattern = I == 3 ? "#96642c" : "#5B2E0B";
+            c.fillStyle = pattern;
+          }
+        }
+        
+        else {
+          if(I != 1 && I != 2){
+            pattern = c.createPattern(I == 3 ? w1 : w2, "");
+            c.fillStyle = pattern;
+          }
         }
                 
         c.beginPath();
@@ -249,9 +248,18 @@ draw = function(screen, xo, yo, win){
     
     for(I = 0; I < 4; I++){
         
-      if(I != 1 && I != 2){
-        pattern = c.createPattern(I == 3 ? w1 : w2, "");
-        c.fillStyle = pattern;
+      if(mobile){
+        if(I != 1 && I != 2){
+          pattern = I == 3 ? "#96642c" : "#5B2E0B";
+          c.fillStyle = pattern;
+        }
+      }
+      
+      else {
+        if(I != 1 && I != 2){
+          pattern = c.createPattern(I == 3 ? w1 : w2, "");
+          c.fillStyle = pattern;
+        }
       }
       
       // Text
@@ -302,12 +310,19 @@ draw = function(screen, xo, yo, win){
   }
   
   // Draw puzzle screen (101-112)
-  else if(state > 100){
+  else if(screen > 100){
   
     c.shadowBlur = 0;
     
-    pattern = c.createPattern(w1, "");
-    c.fillStyle = pattern;
+    if(mobile){
+      pattern = "#96642c";
+      c.fillStyle = pattern;
+    }
+    else {
+      pattern = c.createPattern(w1, "");
+      c.fillStyle = pattern;
+    }
+    
     
     if(Math.abs(xo) < 1 && !interval){
       
@@ -325,15 +340,23 @@ draw = function(screen, xo, yo, win){
     c.beginPath();
     
     size = 3;
-    level = levels[state - 100][0];
+    level = levels[screen - 100][0];
     currentcolor = 0;
     
     // Shadow
+    //console.log("shadow");
     for(i = 0; i < size; i++){
       for(j = 0; j < size; j++){
         if(level[i][j+1] && level[i+1]){
-          pattern = c.createPattern(w1,"");
-          c.fillStyle = pattern;
+          if(mobile){
+            pattern = "#96642c";
+            c.fillStyle = pattern;
+          }
+          else {
+            pattern = c.createPattern(w1, "");
+            c.fillStyle = pattern;
+          }
+          
           c.strokeStyle = "#5e3c01";
           c.shadowColor = 'black';
           c.shadowBlur = 10;
@@ -344,9 +367,6 @@ draw = function(screen, xo, yo, win){
           c.lineTo(xo + solutions[0][i][j+1][0], yo + solutions[0][i][j+1][1]);
           c.lineTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
           c.fill();
-          //c.stroke();
-          
-         
         }
       }
     }
@@ -357,8 +377,14 @@ draw = function(screen, xo, yo, win){
       for(i = 0; i < size; i++){
         for(j = 0; j < size; j++){
           if(level[i][j+1] && level[i+1]){
-            pattern = c.createPattern(w1,"");
-            c.fillStyle = pattern;
+            if(mobile){
+              pattern = "#96642c";
+              c.fillStyle = pattern;
+            }
+            else {
+              pattern = c.createPattern(w1, "");
+              c.fillStyle = pattern;
+            }
             c.strokeStyle = "#5e3c01";
             c.shadowBlur = 0;
             c.beginPath();
@@ -368,9 +394,6 @@ draw = function(screen, xo, yo, win){
             c.lineTo(solutions[0][i][j+1][0], solutions[0][i][j+1][1]);
             c.lineTo(solutions[0][i][j][0], solutions[0][i][j][1]);
             c.fill();
-            //c.stroke();
-            
-           
           }
         }
       }
@@ -394,8 +417,6 @@ draw = function(screen, xo, yo, win){
             c.lineTo(xo + solutions[0][i][j+1][0], yo + solutions[0][i][j+1][1]);
             c.lineTo(xo + solutions[0][i][j][0], yo + solutions[0][i][j][1]);
             c.stroke();
-            
-           
           }
         }
       }
@@ -501,15 +522,12 @@ draw = function(screen, xo, yo, win){
         circle(220, 140, xo, yo);
       }
       
-      
       c.drawImage(check, xo + w/2 - vmin * 7, h/2, vmin * 14, vmin * 14);
       
       setTimeout(function(){
-        onclick({pageX: w, pageY: 0});
+        onmouseup({pageX: w, pageY: 0});
       }, 2000);
     }
-    
-    //*/
   }
   
   return ret;
@@ -588,9 +606,9 @@ initpuzzle = function(n){
 
 
 // Handle click events
-onclick = function(e){
+//onclick = function(e){
   //e.preventDefault();
-}
+//}
 
 transition = function(){
 
@@ -602,22 +620,25 @@ transition = function(){
   
   else {
   
+  
 
     // Desktop: transition
     loops = 30;
     interval = setInterval(function(){
     
+      
       // Scroll with a speed proportional to a sine wave
       scroll += w/30 * Math.sin(loops / 30 * 3.14) * 1.57;
       
       // Reset canvas
       a.width = a.width;
       
+      //console.log(oldstate, -scroll, state, w-scroll);
       // Draw old screen moving left
       draw(oldstate, -scroll, 0, win);
       
       // Draw new screen arriving from the right
-      draw(state, w - scroll, 0), 
+      draw(state, w - scroll, 0);
       
       // Scroll background image
       a.style.backgroundPosition = "-" + scroll + "px";
@@ -664,7 +685,7 @@ onmousedown = ontouchstart = function(e){
     }
   }
   
-  e.preventDefault();
+  //e.preventDefault();
 }
 
 onmousemove = ontouchmove = function(e){
@@ -674,12 +695,12 @@ onmousemove = ontouchmove = function(e){
     a.width = a.width;
     draw(state, 0, 0);
   }
-  e.preventDefault();
+  //e.preventDefault();
 }
 
 onmouseup = ontouchend = function(e){
+
   xy(e);
-  
   
   if(!interval){
   
@@ -697,7 +718,7 @@ onmouseup = ontouchend = function(e){
     // New screen: a puzzle (101-112)
     else if(state == 1){
       tmp = draw(state, 0, 0);
-      console.log(tmp);
+      //console.log(tmp);
       if(tmp){
         state = tmp + 100;
         initpuzzle(tmp);
@@ -710,78 +731,85 @@ onmouseup = ontouchend = function(e){
     
       // Quit
       if(X > w - 70 && Y < 70){
-        oldstate = state;
         state = 1;
       }
       
       // Reset
-      if(X < 70 && Y < 70){
+      else if(X < 70 && Y < 70){
         a.width = a.width;
         initpuzzle(state - 100);
         draw(state, 0, 0);
       }
       
-      // Snap
-      for(i = 0; i < 3; i++){
-        for(j = 0; j < 3; j++){
-          if(solutions[0]){
-            dist = Math.hypot(solutions[0][i][j][0] - X, solutions[0][i][j][1] - Y);
-            if(dist < 30 && closest_i >= 0){
-              mindist = dist;
-              points[closest_i][closest_j] = solutions[0][i][j];
-              
+      else {
+      
+        // Snap
+        mindist = 30;
+        for(i = 0; i < 3; i++){
+          for(j = 0; j < 3; j++){
+            if(solutions[0]){
+              dist = Math.hypot(solutions[0][i][j][0] - X, solutions[0][i][j][1] - Y);
+              if(dist < mindist && closest_i >= 0){
+                mindist = dist;
+                points[closest_i][closest_j] = solutions[0][i][j];
+                
+              }
             }
           }
         }
-      }
-      
-      mousedown = 0;
-      closest = [];
-      closest_i = -1;
-      closest_j = -1
-      a.width = a.width;
-      draw(state,0,0);
-      
-      // Check solution
-      win = 0;
-      for(i in solutions){
-        win = 1;
-        for(j = 0; j < 3; j++){
-          for(k = 0; k < 3; k++){
-            if(points[j][k][0] == solutions[i][j][k][0] && points[j][k][1] == solutions[i][j][k][1]){
-              // ok
-            }
-            else {
-              win = 0;
-            }
-          }
-        }
-        if(win){
-          break;
-        }
-      }
-      
-      //win = 1;
-      
-      if(win){
-          
+        
+        mousedown = 0;
+        closest = [];
+        closest_i = -1;
+        closest_j = -1
         a.width = a.width;
-        draw(state, 0, 0, win);
-        A = new Audio();
-        A.src = "win.mp3";
-        A.play();
-        localStorage["envelope" + (state - 100)] = 1;
+        draw(state,0,0);
+        
+        // Check solution
+        win = 0;
+        for(i in solutions){
+          win = 1;
+          for(j = 0; j < 3; j++){
+            for(k = 0; k < 3; k++){
+              if(points[j][k][0] == solutions[i][j][k][0] && points[j][k][1] == solutions[i][j][k][1]){
+                // ok
+              }
+              else {
+                win = 0;
+              }
+            }
+          }
+          if(win){
+            break;
+          }
+        }
+        
+        //win = 1;
+        
+        if(win){
+            
+          a.width = a.width;
+          draw(state, 0, 0, win);
+          A = new Audio();
+          A.src = "win.mp3";
+          A.play();
+          localStorage["envelope" + (state - 100)] = 1;
+        }
       }
     }
     
     if(state != oldstate){
-      console.log(oldstate, state);
+      //console.log(oldstate, state);
       transition();
     }
   }
   
-  e.preventDefault();
+  try {
+    e.preventDefault();
+  }
+  catch(e){
   
+  }
 }
 
 ondrag = function(e){
