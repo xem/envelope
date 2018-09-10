@@ -147,8 +147,9 @@ onload = onresize = function(){
   w = a.width = innerWidth;
   h = a.height = innerHeight;
   
-  // Recompute vmin
+  // Recompute vh and vh
   vmin = Math.min(w, h) / 100;
+  vh = h / 100;
   
   // Get new context2d
   if(!loaded) c = a.getContext("2d");
@@ -227,11 +228,11 @@ draw = function(screen, xo, yo, win){
         }
                 
         c.beginPath();
-        c.fillText("envelope", .5 * I * vmin / 3, -1 * I * vmin / 3);
+        c.fillText("envelope", .5 * I * vh / 3, -1 * I * vh / 3);
         c.beginPath();
-        c.moveTo(-20 + .5 * I * vmin / 3, 50 - 1 * I * vmin / 3);
-        c.lineTo(20 + .5 * I * vmin / 3, 75 - 1 * I * vmin / 3);
-        c.lineTo(-20 + .5 * I * vmin / 3, 100 - 1 * I * vmin / 3);
+        c.moveTo(-20 + .5 * I * vh / 3, 50 - 1 * I * vh / 3);
+        c.lineTo(20 + .5 * I * vh / 3, 75 - 1 * I * vh / 3);
+        c.lineTo(-20 + .5 * I * vh / 3, 100 - 1 * I * vh / 3);
         c.fill();
       }
 
@@ -334,7 +335,25 @@ draw = function(screen, xo, yo, win){
       // Restart
       c.beginPath();
       c.font = "bold " + 40 + "px arial";
-      c.fillText("↻", 30, 40);      
+      c.fillText("↻", 30, 40);
+
+    }
+
+    // Instructions
+    if(state == 101 && !win){
+      c.textAlign = "center";
+      c.font = 4*vh + "px Arial";
+      c.fillText("drag the points of the grid", xo + w/2, h/2 + 2*vh);
+      c.fillText("on top of the shape", xo + w/2, h/2 + 6 * vh);
+    }
+    
+    // Instructions
+    if(state == 112 && !win){
+      c.textAlign = "center";
+      c.font = 3*vh + "px Arial";
+      c.fillText("Thanks for playing this demo!", xo + w/2, h/2 + 3*vh);
+      c.fillText("Full game coming soon on app stores!", xo + w/2, h/2 + 7 * vh);
+      c.fillText("Xem & OZ", xo + w/2 + w/3, h - 3 * vh);
     }
     
     c.beginPath();
@@ -483,6 +502,8 @@ draw = function(screen, xo, yo, win){
           }
         }
       }
+      
+      
     }
     
     if(win){
@@ -522,12 +543,13 @@ draw = function(screen, xo, yo, win){
         circle(220, 140, xo, yo);
       }
       
-      c.drawImage(check, xo + w/2 - vmin * 7, h/2, vmin * 14, vmin * 14);
+      c.drawImage(check, xo + w/2 - vh * 7, h/2, vh * 14, vh * 14);
       
       setTimeout(function(){
         onmouseup({pageX: w, pageY: 0});
       }, 2000);
     }
+
   }
   
   return ret;
@@ -537,15 +559,15 @@ draw = function(screen, xo, yo, win){
 // Shapes
 circle = function(x, y, xo, yo){
   c.beginPath();
-  c.arc(xo + w/2 - 40 * vmin + x * vmin/10, y * vmin/10, 1 * vmin, 0, 7);
+  c.arc(xo + w/2 - 40 * vh + x * vh/10, y * vh/10, 1 * vh, 0, 7);
   c.fillStyle = "#56340c";
   c.fill();
 }
 
 smile = function(x, y, xo, yo){
   c.beginPath();
-  c.arc(xo + w/2 - 40 * vmin + x * vmin/10, y * vmin/10, 3 * vmin, 1, 2.14);
-  c.lineWidth = .8 * vmin;
+  c.arc(xo + w/2 - 40 * vh + x * vh/10, y * vh/10, 3 * vh, 1, 2.14);
+  c.lineWidth = .8 * vh;
   c.strokeStyle = "#56340c"
   c.stroke();
 }
@@ -571,8 +593,8 @@ initpuzzle = function(n){
           
         solutions[i * 8][j][k] =
         [
-          w/2 - 40 * vmin + levels[n][i][j][k][0] * vmin/10,
-          levels[n][i][j][k][1] * vmin/10
+          w/2 - 40 * vh + levels[n][i][j][k][0] * vh/10,
+          levels[n][i][j][k][1] * vh/10
         ];
       }
     }
@@ -594,8 +616,8 @@ initpuzzle = function(n){
     points[i] = [];
     for(j = 0; j < 3; j++){
       points[i][j] = [
-        w/2 - 15 * vmin + i * 12 * vmin + j * (i - 1.1) * vmin,
-        h/2 + h/8 + 11 * j * vmin + j * (1.1) * vmin
+        w/2 - 15 * vh + i * 12 * vh + j * (i - 1.1) * vh,
+        h/2 + h/8 + 11 * j * vh + j * (1.1) * vh
       ];
     }
   }
