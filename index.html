@@ -6,7 +6,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="msapplication-tap-highlight" content="no">
 <title>envelope</title>
-<canvas id=a></canvas>
+<div class=wrapper><canvas id=a></canvas></div>
 <script>
 
 // ENVELOPE
@@ -834,7 +834,7 @@ onmouseup = ontouchend = function(e){
   }
 }
 
-ondrag = function(e){
+ondrag = onscroll = function(e){
   e.preventDefault();
 }
 
@@ -843,8 +843,9 @@ ondrag = function(e){
 xy = function(e){
   // Mobile
   if(e.changedTouches){
-    X = e.changedTouches[0].pageX;
-    Y = e.changedTouches[0].pageY;
+    var r = a.getBoundingClientRect();
+    X = e.changedTouches[0].clientX;
+    Y = e.changedTouches[0].clientY;
   }
   
   // Desktop
@@ -934,20 +935,22 @@ setInterval(music, 14990);
 </script>
 
 <style>
-
 /* Make the canvas fullscreen */
-#a { width: 100%; height: 100%; position: fixed; top: 0; left: 0; cursor: pointer; }
-
-/* The DOM added by the loom extension breaks my SVGs, so this is a protection */ 
-loom-container { display: none }
+.wrapper { cursor: pointer; position: fixed; top: 0; left: 0; }
 
 /* No highlight on mobile */
 * {
+  margin: 0;
+  padding: 0;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
+
 </style>

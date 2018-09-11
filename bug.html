@@ -6,7 +6,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="msapplication-tap-highlight" content="no">
 
-<div class=wrapper><canvas id=a></vanvas></div>
+<div class=wrapper><canvas id=a></canvas></div>
 
 <script>
 a.width = innerWidth;
@@ -41,8 +41,8 @@ xy = function(e){
   // Mobile
   if(e.changedTouches){
     var r = a.getBoundingClientRect();
-    X = e.changedTouches[0].clientX - r.left;
-    Y = e.changedTouches[0].clientY - r.top;
+    X = e.changedTouches[0].clientX;
+    Y = e.changedTouches[0].clientY;
   }
   
   // Desktop
@@ -70,6 +70,7 @@ xy = function(e){
   user-select: none;
   -webkit-overflow-scrolling: touch;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 </style>
