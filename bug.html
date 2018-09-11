@@ -39,8 +39,9 @@ onclick = function(e){
 xy = function(e){
   // Mobile
   if(e.changedTouches){
-    X = e.changedTouches[0].pageX;
-    Y = e.changedTouches[0].pageY;
+    var r = a.getBoundingClientRect();
+    X = e.changedTouches[0].clientX - r.left;
+    Y = e.changedTouches[0].clientY - r.top;
   }
   
   // Desktop
