@@ -145,8 +145,8 @@ var transpose3 = function(matrix){
 onload = onresize = function(){
 
   // Resize canvas
-  w = a.width = innerWidth / ratio;
-  h = a.height = innerHeight / ratio;
+  w = a.width = innerWidth;
+  h = a.height = innerHeight;
   
   // Recompute vh and vh
   vmin = Math.min(w, h) / 100;
@@ -708,13 +708,15 @@ onmousedown = ontouchstart = function(e){
     }
   }
   
+  if(points[closest_i])start = [points[closest_i][closest_j][0], points[closest_i][closest_j][1]]
+  
   e.preventDefault();
 }
 
 onmousemove = ontouchmove = function(e){
   if(mousedown && closest.length){
     xy(e);
-    points[closest_i][closest_j] = [X,Y];
+    points[closest_i][closest_j] = [ start[0] + (X - start[0]) * ratio, start[1] + (Y - start[1]) * ratio];
     a.width = a.width;
     draw(state, 0, 0);
   }
