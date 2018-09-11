@@ -55,7 +55,7 @@ xy = function(e){
 <style>
 
 /* Make the canvas fullscreen */
-#a { cursor: pointer; }
+#a { cursor: pointer; position: fixed; top: 0; left: 0; }
 
 /* No highlight on mobile */
 * {
@@ -67,6 +67,8 @@ xy = function(e){
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
 }
 
 </style>
