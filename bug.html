@@ -1,0 +1,27 @@
+<canvas id=a>
+
+<script>
+a.width = innerWidth;
+a.height = innerHeight;
+c = a.getContext("2d");
+
+onmousemove = ontouchmove = function(e){
+  xy(e);
+  a.width = a.width;
+  c.fillRect(X, Y, 30, 30)
+}
+
+xy = function(e){
+  // Mobile
+  if(e.changedTouches){
+    X = e.changedTouches[0].pageX;
+    Y = e.changedTouches[0].pageY;
+  }
+  
+  // Desktop
+  else{
+    X = e.pageX;
+    Y = e.pageY;
+  }
+}
+</script>
