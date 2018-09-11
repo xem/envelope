@@ -26,7 +26,6 @@ points = [];    // draggable points
 solutions = []; // solutions
 win = 0;        // win flag
 mobile = navigator.userAgent.match(/iPhone|iPad|Android/);
-ratio = window.devicePixelRatio || 1;
 
 // Puzzles
 // -------
@@ -708,15 +707,13 @@ onmousedown = ontouchstart = function(e){
     }
   }
   
-  if(points[closest_i])start = [points[closest_i][closest_j][0], points[closest_i][closest_j][1]]
-  
   e.preventDefault();
 }
 
 onmousemove = ontouchmove = function(e){
   if(mousedown && closest.length){
     xy(e);
-    points[closest_i][closest_j] = [ start[0] + (X - start[0]) * ratio, start[1] + (Y - start[1]) * ratio];
+    points[closest_i][closest_j] = [X,Y];
     a.width = a.width;
     draw(state, 0, 0);
   }
