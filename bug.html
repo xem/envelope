@@ -20,6 +20,14 @@ onmousemove = ontouchmove = function(e){
   e.preventDefault();
 }
 
+onmouseup = ontouchend = function(e){
+  e.preventDefault()
+}
+
+onmousedown = ontouchstart = function(e){
+  e.preventDefault();
+}
+
 xy = function(e){
   // Mobile
   if(e.changedTouches){
