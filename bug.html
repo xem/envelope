@@ -6,7 +6,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="msapplication-tap-highlight" content="no">
 
-<canvas id=a>
+<div class=wrapper><canvas id=a></vanvas></div>
 
 <script>
 a.width = innerWidth;
@@ -16,6 +16,7 @@ c = a.getContext("2d");
 onmousemove = ontouchmove = function(e){
   xy(e);
   a.width = a.width;
+  c.fillStyle = "blue";
   c.fillRect(X, Y, 30, 30);
   e.preventDefault();
 }
@@ -55,7 +56,7 @@ xy = function(e){
 <style>
 
 /* Make the canvas fullscreen */
-#a { cursor: pointer; position: fixed; top: 0; left: 0; }
+.wrapper { cursor: pointer; position: fixed; top: 0; left: 0; }
 
 /* No highlight on mobile */
 * {
