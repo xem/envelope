@@ -26,6 +26,7 @@ points = [];    // draggable points
 solutions = []; // solutions
 win = 0;        // win flag
 mobile = navigator.userAgent.match(/iPhone|iPad|Android/);
+ratio = window.devicePixelRatio || 1;
 
 // Puzzles
 // -------
@@ -144,8 +145,8 @@ var transpose3 = function(matrix){
 onload = onresize = function(){
 
   // Resize canvas
-  w = a.width = innerWidth;
-  h = a.height = innerHeight;
+  w = a.width = innerWidth / ratio;
+  h = a.height = innerHeight / ratio;
   
   // Recompute vh and vh
   vmin = Math.min(w, h) / 100;
