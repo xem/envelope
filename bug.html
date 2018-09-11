@@ -16,7 +16,8 @@ c = a.getContext("2d");
 onmousemove = ontouchmove = function(e){
   xy(e);
   a.width = a.width;
-  c.fillRect(X, Y, 30, 30)
+  c.fillRect(X, Y, 30, 30);
+  e.preventDefault();
 }
 
 xy = function(e){
