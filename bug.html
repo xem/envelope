@@ -28,7 +28,11 @@ onmousedown = ontouchstart = function(e){
   e.preventDefault();
 }
 
-ondrag = function(e){
+ondrag = onscroll = function(e){
+  e.preventDefault();
+}
+
+onclick = function(e){
   e.preventDefault();
 }
 
